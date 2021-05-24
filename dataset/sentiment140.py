@@ -9,6 +9,8 @@ def get_datasets(validation_percent):
 	(train_data, validation_data), test_data = tfds.load(
 		name="sentiment140",
 		split=(train_validation_split, tfds.Split.TEST),
-		as_supervised=True)
+		as_supervised=True,
+		download=True
+	)
 
 	return train_data, validation_data, test_data
