@@ -9,6 +9,9 @@ pooled = False
 def embeddings(x):
 	elmo = hub.Module("https://tfhub.dev/google/elmo/3", trainable=trainable)
 	if pooled:
-		return elmo(tf.cast(x, tf.string), signature="default", as_dict=True)["default"]
-	else:
-		return elmo(tf.cast(x, tf.string), signature="default", as_dict=True)["elmo"]
+		return elmo(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["default"]
+	return elmo(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["elmo"]
+
+
+def embedding_layer(input_layer):
+	return tf.keras.layers.Lambda(embeddings, output_shape=(1024, ))(input_layer)
