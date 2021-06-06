@@ -1,4 +1,6 @@
 import tensorflow_datasets as tfds
+import tensorflow as tf
+from preprocessors import preprocess_tweet
 
 
 def get_datasets(validation_percent):
@@ -12,3 +14,7 @@ def get_datasets(validation_percent):
 	)
 
 	return train_data, validation_data, test_data
+
+
+def get_preprocessed_input_layer(input_layer):
+	return tf.keras.layers.Lambda(preprocess_tweet, output_shape=(1, ), name='tweet_preprocessor')(input_layer)

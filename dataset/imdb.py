@@ -23,3 +23,7 @@ def get_datasets(validation_percent):
 		)
 
 	return train_data, validation_data, test_data
+
+
+def get_preprocessed_input_layer(input_layer):
+	return input_layer
