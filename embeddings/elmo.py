@@ -5,9 +5,10 @@ import tensorflow_hub as hub
 trainable = False
 pooled = False
 
+elmo = hub.Module("https://tfhub.dev/google/elmo/3", trainable=trainable)
+
 
 def embeddings(x):
-	elmo = hub.Module("https://tfhub.dev/google/elmo/3", trainable=trainable)
 	if pooled:
 		return elmo(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["default"]
 	return elmo(tf.squeeze(tf.cast(x, tf.string)), signature="default", as_dict=True)["elmo"]
