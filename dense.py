@@ -9,14 +9,16 @@ args = parser.parse_args()
 
 if args.dataset == "IMDB":
 	import dataset.imdb as ds
+elif args.dataset == "SemEval":
+	import dataset.semeval as ds
 else:
 	if not tf.__version__.startswith('2'):
-		raise Exception("Sentiment140 Dataset works on TensorFlow 2.x only. Please install Tensorflow 1.15(preferably) to use ELMo")
+		raise Exception("Sentiment140 Dataset works on TensorFlow 2.x only. Please install latest TensorFlow 2.x to use the dataset")
 	import dataset.sentiment140 as ds
 
 if args.embedding == "ELMo":
 	if not tf.__version__.startswith('1'):
-		raise Exception("ELMo Embeddings works on TensorFlow 1.x only. Please install Tensorflow 1.15(preferably) to use ELMo")
+		raise Exception("ELMo Embeddings works on TensorFlow 1.x only. Please install TensorFlow 1.15(preferably) to use ELMo")
 	import embeddings.elmo as emb
 else:
 	import embeddings.bert as emb
@@ -31,9 +33,10 @@ test_data = test_data.batch(BATCH_SIZE)
 # Build Model
 input_text = tf.keras.layers.Input(shape=(), dtype=tf.string, name='sentences')
 emb.pooled = True
-embedding = emb.embedding_layer(input_text)
+input_layer = ds.get_preprocessed_input_layer(input_text)
+embedding = emb.embedding_layer(input_layer)
 embedding_dropout = tf.keras.layers.Dropout(0.1)(embedding)
-dense = tf.keras.layers.Dense(256, activation='relu')(embedding_dropout)
+dense = tf.keras.layers.Dense(64, activation='relu')(embedding_dropout)
 pred = tf.keras.layers.Dense(1, activation='sigmoid')(dense)
 model = tf.keras.Model(inputs=[input_text], outputs=pred, name=f'{args.embedding}-Dense')
 model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
