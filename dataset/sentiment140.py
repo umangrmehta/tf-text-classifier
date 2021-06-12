@@ -1,6 +1,6 @@
 import tensorflow_datasets as tfds
 import tensorflow as tf
-from preprocessors import preprocess_tweet
+from dataset.preprocessors import preprocess_tweet
 
 classes = 2
 
