@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dataset", type=str, choices=["IMDB", "SemEval", "Sentiment140"], default="Sentiment140", help="Dataset to use for Model")
 parser.add_argument("-e", "--embedding", type=str, choices=["ELMo", "BERT"], default="BERT", help="Embeddings to use for Model")
+parser.add_argument("-a", "--architecture", type=str, choices=["DNN", "LSTM", "CNN", "LSTM-CNN", "CNN-LSTM"], default="DNN", help="Model Architecture")
 args = parser.parse_args()
 
 if args.dataset == "IMDB":
@@ -23,6 +24,11 @@ if args.embedding == "ELMo":
 else:
 	import embeddings.bert as emb
 
+if args.architecture == "LSTM":
+	import architecture.dnn as arc
+else:
+	import architecture.dnn as arc
+
 # Load Dataset
 BATCH_SIZE = 256
 train_data, validation_data, test_data = ds.get_datasets(20)
@@ -35,11 +41,7 @@ input_text = tf.keras.layers.Input(shape=(), dtype=tf.string, name='sentences')
 emb.pooled = True
 input_layer = ds.get_preprocessed_input_layer(input_text)
 embedding = emb.embedding_layer(input_layer)
-embedding_dropout = tf.keras.layers.Dropout(0.1)(embedding)
-dense = tf.keras.layers.Dense(64, activation='relu')(embedding_dropout)
-pred = tf.keras.layers.Dense(1, activation='sigmoid')(dense)
-model = tf.keras.Model(inputs=[input_text], outputs=pred, name=f'{args.embedding}-Dense')
-model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+model = arc.get_model(input_text, embedding, f'{args.embedding}-{args.model}')
 
 if args.embedding == "ELMo":
 	# Train Model
@@ -58,8 +60,8 @@ else:
 	# Evaluate Model
 	evaluation = model.evaluate(test_data, return_dict=True)
 
-acc = history.history['acc']
-val_acc = history.history['val_acc']
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
 loss = history.history['loss']
 val_loss = history.history['val_loss']
 
