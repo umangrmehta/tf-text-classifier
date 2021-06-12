@@ -35,6 +35,8 @@ elif args.architecture == "CNN":
 	import architecture.cnn as arc
 elif args.architecture == "LSTM-CNN":
 	import architecture.lstm_cnn as arc
+elif args.architecture == "CNN-LSTM":
+	import architecture.cnn_lstm as arc
 else:
 	import architecture.dnn as arc
 	emb.pooled = True
