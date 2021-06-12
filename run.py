@@ -1,10 +1,12 @@
 import argparse
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import json
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--dataset", type=str, choices=["IMDB", "SemEval", "Sentiment140"], default="Sentiment140", help="Dataset to use for Model")
 parser.add_argument("-e", "--embedding", type=str, choices=["ELMo", "BERT"], default="BERT", help="Embeddings to use for Model")
+parser.add_argument("-t", "--trainable", action="store_true", help="Are Embeddings Trainable?")
 parser.add_argument("-a", "--architecture", type=str, choices=["DNN", "LSTM", "CNN", "LSTM-CNN", "CNN-LSTM"], default="DNN", help="Model Architecture")
 args = parser.parse_args()
 
@@ -24,10 +26,14 @@ if args.embedding == "ELMo":
 else:
 	import embeddings.bert as emb
 
+if args.trainable:
+	emb.trainable = True
+
 if args.architecture == "LSTM":
 	import architecture.dnn as arc
 else:
 	import architecture.dnn as arc
+	emb.pooled = True
 
 # Load Dataset
 BATCH_SIZE = 256
@@ -38,10 +44,9 @@ test_data = test_data.batch(BATCH_SIZE)
 
 # Build Model
 input_text = tf.keras.layers.Input(shape=(), dtype=tf.string, name='sentences')
-emb.pooled = True
 input_layer = ds.get_preprocessed_input_layer(input_text)
 embedding = emb.embedding_layer(input_layer)
-model = arc.get_model(input_text, embedding, f'{args.embedding}-{args.model}')
+model = arc.get_model(input_text, embedding, f'{args.embedding}-{args.architecture}')
 
 if args.embedding == "ELMo":
 	# Train Model
@@ -55,7 +60,9 @@ if args.embedding == "ELMo":
 	evaluation = model.evaluate(test_data)
 else:
 	# Train Model
-	history = model.fit(train_data, validation_data=validation_data, epochs=100)
+	history = model.fit(train_data, validation_data=validation_data, epochs=2)
+	json.dump(history.history, open(f'results/{args.embedding}-{args.architecture}-{args.dataset}-training.json'))
+	model.save(f'models/{args.embedding}-{args.architecture}-{args.dataset}')
 
 	# Evaluate Model
 	evaluation = model.evaluate(test_data, return_dict=True)
