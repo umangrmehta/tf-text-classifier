@@ -30,7 +30,7 @@ if args.trainable:
 	emb.trainable = True
 
 if args.architecture == "LSTM":
-	import architecture.dnn as arc
+	import architecture.lstm as arc
 else:
 	import architecture.dnn as arc
 	emb.pooled = True
@@ -60,8 +60,8 @@ if args.embedding == "ELMo":
 	evaluation = model.evaluate(test_data)
 else:
 	# Train Model
-	history = model.fit(train_data, validation_data=validation_data, epochs=2)
-	json.dump(history.history, open(f'results/{args.embedding}-{args.architecture}-{args.dataset}-training.json'))
+	history = model.fit(train_data, validation_data=validation_data, epochs=1)
+	json.dump(history.history, open(f'results/{args.embedding}-{args.architecture}-{args.dataset}-training.json', 'w'))
 	model.save(f'models/{args.embedding}-{args.architecture}-{args.dataset}')
 
 	# Evaluate Model
