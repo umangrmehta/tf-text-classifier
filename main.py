@@ -31,6 +31,10 @@ if args.trainable:
 
 if args.architecture == "LSTM":
 	import architecture.lstm as arc
+elif args.architecture == "CNN":
+	import architecture.cnn as arc
+elif args.architecture == "LSTM-CNN":
+	import architecture.lstm_cnn as arc
 else:
 	import architecture.dnn as arc
 	emb.pooled = True
