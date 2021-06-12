@@ -1,14 +1,16 @@
 import tensorflow as tf
-from preprocessors import preprocess_tweet
+from dataset.preprocessors import preprocess_tweet
 
-feature_description = {
+features = {
 	'text': tf.io.FixedLenFeature([], tf.string, default_value=''),
-	'label': tf.io.FixedLenFeature([], tf.string, default_value='')
+	'polarity': tf.io.FixedLenFeature([], tf.int64, default_value=0)
 }
+classes = 2
 
 
 def parse_record(example_proto):
-	return tf.io.parse_single_example(example_proto)
+	example_dict = tf.io.parse_single_example(example_proto, features=features)
+	return example_dict["text"], example_dict["polarity"]
 
 
 def load_data(path):

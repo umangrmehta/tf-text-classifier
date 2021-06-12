@@ -2,6 +2,8 @@ import tensorflow_datasets as tfds
 import tensorflow as tf
 from preprocessors import preprocess_tweet
 
+classes = 2
+
 
 def get_datasets(validation_percent):
 	train_percent = 100 - validation_percent
