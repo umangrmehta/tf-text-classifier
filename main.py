@@ -28,6 +28,9 @@ else:
 
 if args.trainable:
 	emb.trainable = True
+	model_name = f'{args.embedding}-{args.architecture}-{args.dataset}-Trainable'
+else:
+	model_name = f'{args.embedding}-{args.architecture}-{args.dataset}'
 
 if args.architecture == "LSTM":
 	import architecture.lstm as arc
@@ -41,6 +44,8 @@ else:
 	import architecture.dnn as arc
 	emb.pooled = True
 
+print(model_name)
+
 # Load Dataset
 BATCH_SIZE = 256
 train_data, validation_data, test_data = ds.get_datasets(20)
@@ -52,7 +57,7 @@ test_data = test_data.batch(BATCH_SIZE)
 input_text = tf.keras.layers.Input(shape=(), dtype=tf.string, name='sentences')
 input_layer = ds.get_preprocessed_input_layer(input_text)
 embedding = emb.embedding_layer(input_layer)
-model = arc.get_model(input_text, embedding, f'{args.embedding}-{args.architecture}')
+model = arc.get_model(input_text, embedding, model_name)
 
 if args.embedding == "ELMo":
 	# Train Model
@@ -66,8 +71,8 @@ if args.embedding == "ELMo":
 	evaluation = model.evaluate(test_data)
 else:
 	# Train Model
-	history = model.fit(train_data, validation_data=validation_data, epochs=1)
-	json.dump(history.history, open(f'results/{args.embedding}-{args.architecture}-{args.dataset}-training.json', 'w'))
+	history = model.fit(train_data, validation_data=validation_data, epochs=20)
+	json.dump(history.history, open(f'results/{model_name}-training.json', 'w'))
 	model.save(f'models/{args.embedding}-{args.architecture}-{args.dataset}')
 
 	# Evaluate Model
